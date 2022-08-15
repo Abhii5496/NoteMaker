@@ -4,12 +4,13 @@ const dotenv = require('dotenv').config();
 const {errorHandler} = require('./middleware/errorMiddleWare')
 const connectDB = require('./config/db')
 const port = process.env.PORT || 5000
+const bodyparser = require('body-parser')
 
 connectDB()
 
 const app = express()
 
-
+app.use(bodyparser.json())
 app.use(express.json())
 app.use(express.urlencoded({extended:false}))
 
