@@ -1,60 +1,58 @@
-import {useEffect} from 'react'
-import {useNavigate} from 'react-router-dom'
-import {useSelector, useDispatch} from 'react-redux'
-import GoalForm from '../components/GoalForm'
-import { getGoals, reset } from '../features/goals/goalSlice'
-import GoalItem from '../components/GoalItem' 
-import Spinner from '../components/Spinner'
-
-
-
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import GoalForm from "../components/GoalForm";
+import { getGoals, reset } from "../features/goals/goalSlice";
+import GoalItem from "../components/GoalItem";
+import Spinner from "../components/Spinner";
+import { toast } from "react-toastify";
 
 function Dashboard() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const navigate = useNavigate()
-  const dispatch =useDispatch()
+  const { user } = useSelector((state) => state.auth);
+  const {
+    goal: { isLoading, isError, isSuccess, message, goals },
+  } = useSelector((state) => state);
 
-  const {user} = useSelector((state) => state.auth)
-  const {goals, isLoading, isError, message} = useSelector((state) => state.goals)
+  // console.log(isLoading, isError, isSuccess, message, goals);
 
   useEffect(() => {
-    if(isError){
-      console.log(message);
+    if (!user) {
+      navigate("/register");
     }
-    if(!user){
-      navigate('/')
+    if (user) {
+      dispatch(getGoals());
     }
+    return () => {};
+  }, [user]);
 
-    dispatch(getGoals())
-
-    return() => {
-      dispatch(reset())
-    }
-  },[user, navigate, isError, message,dispatch])
-
-
-  if(isLoading) {
-    <Spinner></Spinner>
+  if (isLoading) {
+    <Spinner></Spinner>;
   }
 
   return (
     <>
-    <section className='heading'>
-      <h1> Welcome {user && user.name}</h1>
-      <p>Notes Dhashbord</p>
-    </section>
-    <GoalForm/>
-    <section className='content'>
-      {goals.length > 0 ? (
-        <div className='goals'>
-          {goals.map((goal) => (
-            <GoalItem key={goal._id} goal={goal}/>
-          ))}
-        </div>
-      ) : (<h3>You do not any Notes </h3>)}
-    </section>
+      <section className="heading">
+        <h1> Welcome {user && user.name}</h1>
+        <p>Notes Dhashbord</p>
+      </section>
+      <GoalForm />
+      <section className="content">
+        {isLoading && <Spinner />}
+        {!isLoading && goals && goals.length > 0 ? (
+          <div className="goals">
+            {goals.map((goal) => (
+              <GoalItem key={goal._id} goal={goal} />
+            ))}
+          </div>
+        ) : (
+          <h3>You do not any Notes </h3>
+        )}
+      </section>
     </>
-  )
+  );
 }
 
-export default Dashboard
+export default Dashboard;
